@@ -1,6 +1,8 @@
 package com.company;
 
 import com.TextureReader;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
@@ -9,7 +11,10 @@ import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class BodyGLEventListener implements GLEventListener , KeyListener {
@@ -24,6 +29,10 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
     TextureReader.Texture texture[] = new TextureReader.Texture[textureName.length] ;
     int textureIndex[] = new int[textureName.length];
     ArrayList <ShotMove> Shot_Data = new ArrayList<>();
+    
+
+    public BodyGLEventListener() throws FileNotFoundException {
+    }
 
     public void setGLCanvas(GLCanvas gcl){
         this.gcl=gcl;
@@ -207,7 +216,25 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
         }
         if (e.getKeyCode()==KeyEvent.VK_SPACE){
             Shot_Data.add(new ShotMove(x,y,rotate_angle));
+            // --------------- Call Method Sound_start to make sound shot ------------------//
+            Sound_start();
+
         }
+    
+    }
+
+    private void Sound_start() {
+         InputStream Shot_sound;
+         AudioStream Shot_start = null;
+        
+            try {
+                Shot_sound = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\shotsound.wav");
+                Shot_start = new AudioStream(Shot_sound);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        
+        AudioPlayer.player.start(Shot_start);
 
     }
 

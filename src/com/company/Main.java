@@ -1,24 +1,42 @@
 package com.company;
 
 import com.sun.opengl.util.FPSAnimator;
+import sun.audio.*;
 
 import javax.media.opengl.GLCanvas;
 import javax.swing.*;
 import java.awt.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class Main extends JFrame {
     static  JFrame Home , Body_of_Game;
     static HomeGLEventListener home = new HomeGLEventListener();
-    static BodyGLEventListener body = new BodyGLEventListener();
+    static BodyGLEventListener body;
+
+    static {
+        try {
+            body = new BodyGLEventListener();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     static GLCanvas glcanvas_of_Home,glcanvas_of_Body_of_Game ;
     static  JButton BT1 ;
-
+    static  AudioStream as;
     static FPSAnimator animtor1,animtor2  ;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         CreateJframe();
         CreateGLCanvas();
         CreateButton();
+        InputStream Get_M_of_Home = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\WorldofTanks.wav");
+        as = new AudioStream(Get_M_of_Home);
+        AudioPlayer.player.start(as);
+
         HandlerButton();
         animtor1.start();
         animtor2.start();
@@ -28,6 +46,7 @@ public class Main extends JFrame {
         BT1.addActionListener(e ->{
              Home.setVisible(false);
              Body_of_Game.setVisible(true);
+             AudioPlayer.player.stop(as);
         });
     }
 
