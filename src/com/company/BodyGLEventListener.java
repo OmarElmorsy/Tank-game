@@ -25,9 +25,12 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
     private GLCanvas gcl;
     double rotate_angle = 0 ;
     protected String assetsFolderName = "Assets";
-    String textureName[]= {"Tank5.png","Shot2.png"};
+    String textureName[]= {"Tampel2.png","Tank5.png","Shot2.png"};
     TextureReader.Texture texture[] = new TextureReader.Texture[textureName.length] ;
     int textureIndex[] = new int[textureName.length];
+    int index_post = 0 ;
+    int [][] array_of_blocks = new int[20][20];
+
     ArrayList <ShotMove> Shot_Data = new ArrayList<>();
     
 
@@ -47,10 +50,15 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
         gl.glViewport(0, 0, 100,100);
         gl.glMatrixMode(GL.GL_PROJECTION);
         gl.glLoadIdentity();
-        //gl.glOrtho(-1.0, 2.0, -2.0, 2.0, -2.0, 1.0);
+        gl.glOrtho(0.0, 100.0, 0.0, 100.0, -1.0, 1.0);
         gl.glEnable(GL.GL_TEXTURE_2D);  // Enable Texture Mapping
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         //number of textures, array to hold the indeces
+        for (int k = 0 ; k < array_of_blocks.length ; k++ ){
+            for (int j = 0 ; j< array_of_blocks.length;j++){
+                array_of_blocks[k][j]= (int)(Math.round(Math.random()));
+            }
+        }
         gl.glGenTextures(textureName.length, textureIndex, 0);
         for (int i = 0 ; i < textureName.length;i++) {
             try {
@@ -76,7 +84,13 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
     public void display(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
         gl.glClear (GL.GL_COLOR_BUFFER_BIT);
-        DrawSprite(gl,0,rotate_angle);
+        for (int i = 0 ; i < array_of_blocks.length ; i++ ){
+            for (int j = 0 ; j< array_of_blocks.length;j++){
+                if (array_of_blocks[i][j]==1){
+                    DrawSprite(gl,index_post,0,(float)(i*5),(float) (j*5));
+                }
+            }
+        }
 
         for (int i = 0 ; i < Shot_Data.size() ; i ++){
             Shot(gl,Shot_Data.get(i).x,Shot_Data.get(i).y,Shot_Data.get(i).rotate_angle);
@@ -107,25 +121,25 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
     public void displayChanged(GLAutoDrawable drawable, boolean b, boolean b1) {
 
     }
-    public void DrawSprite(GL gl ,int index, double rotate_angle) {
+    public void DrawSprite(GL gl ,int index, double rotate_angle, float xLeft, float yTop) {
         gl.glEnable(GL.GL_BLEND);
+        gl.glBindTexture(GL.GL_TEXTURE_2D, textureIndex[0]);	// Turn Blending On
+        //gl.glColor3f(0, 0, 0);
         gl.glPushMatrix();
-        gl.glBindTexture(GL.GL_TEXTURE_2D, textureIndex[0]);// Turn Blending On
         gl.glTranslated( x * scale, y * scale, 1);
         gl.glRotated(rotate_angle,0,0,1);
-        //gl.glColor3f(0, 0, 0);
-        gl.glScaled(scale-.05, scale-.02, 1);
+        //gl.glScaled(scale*2, scale*3.5, 1);
         //System.out.println(x +" " + y);
         gl.glBegin(GL.GL_QUADS);
         // Front Face
         gl.glTexCoord2f(0.0f, 0.0f);
-        gl.glVertex3f(-1.0f, -1.0f, -1.0f);
+        gl.glVertex3f(xLeft, yTop, -1.0f);
         gl.glTexCoord2f(1.0f, 0.0f);
-        gl.glVertex3f(1.0f, -1.0f, -1.0f);
+        gl.glVertex3f(xLeft+5, yTop, -1.0f);
         gl.glTexCoord2f(1.0f, 1.0f);
-        gl.glVertex3f(1.0f, 1.0f, -1.0f);
+        gl.glVertex3f(xLeft+5, yTop+5, -1.0f);
         gl.glTexCoord2f(0.0f, 1.0f);
-        gl.glVertex3f(-1.0f, 1.0f, -1.0f);
+        gl.glVertex3f(xLeft,yTop+5, -1.0f);
         gl.glEnd();
         gl.glPopMatrix();
 
