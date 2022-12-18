@@ -79,7 +79,7 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
             }
         }
 //        drawTexture(gl,2,0, (float)(7*wallWidth),(float) (7*wallHeight), (float)1, (float)2);
-        drawTexture(gl,1, rotate_angle, x , y, 5, 5);
+        drawTexture(gl,1, 0, x , y, 5, 5);
 
         for (int i = 0; i < shotData.size() ; i ++){
             drawTexture(gl,index_post, shotData.get(i).rotate_angle, shotData.get(i).x, shotData.get(i).y, wallWidth, wallHeight);
@@ -105,10 +105,10 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
         gl.glEnable(GL.GL_BLEND);
         gl.glBindTexture(GL.GL_TEXTURE_2D, textureIndex[index]);	// Turn Blending On
         gl.glPushMatrix();
-        if(index == 1){
-            gl.glTranslated(x*.1, y*0.01,1);
-            gl.glRotated((float)rotate_angle,0,0,1);
-        }
+//        if(index == 1){
+//            gl.glTranslated(x*.1, y*0.01,1);
+//            gl.glRotated((float)rotate_angle,0,0,1);
+//        }
         gl.glBegin(GL.GL_QUADS);
         gl.glTexCoord2f(0.0f, 0.0f);
         gl.glVertex3f(xLeft, yBottom, -1.0f);
