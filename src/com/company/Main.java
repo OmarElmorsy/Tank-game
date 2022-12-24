@@ -1,7 +1,8 @@
 package com.company;
 
 import com.sun.opengl.util.FPSAnimator;
-import sun.audio.*;
+import sun.audio.AudioPlayer;
+import sun.audio.AudioStream;
 
 import javax.media.opengl.GLCanvas;
 import javax.swing.*;
@@ -35,7 +36,7 @@ public class Main extends JFrame {
         CreateButton();
         InputStream Get_M_of_Home = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\WorldofTanks.wav");
         as = new AudioStream(Get_M_of_Home);
-        AudioPlayer.player.start(as);
+        //AudioPlayer.player.start(as);
 
         HandlerButton();
         animtor1.start();
@@ -81,15 +82,15 @@ public class Main extends JFrame {
         //--------------------- Create  Home Frame ------------------------//
         Home = new JFrame("Tanks-game_home");
         Home.setSize(500,500);
-        Home.setVisible(true);
+        Home.setVisible(false);
         centerWindow(Home);
         Home.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //Home.setLayout(null);
 
         //--------------------- Create  Body_of_Game Frame ------------------------//
         Body_of_Game = new JFrame("Tanks-game");
-        Body_of_Game.setSize(500,500);
-        Body_of_Game.setVisible(false);
+        Body_of_Game.setSize(900,800);
+        Body_of_Game.setVisible(true);
         centerWindow(Body_of_Game);
         Body_of_Game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
