@@ -16,6 +16,7 @@ public class Main extends JFrame {
     static  JFrame Home , Body_of_Game;
     static HomeGLEventListener home = new HomeGLEventListener();
     static BodyGLEventListener body;
+    static  int level = 1 ;
 
     static {
         try {
@@ -37,12 +38,11 @@ public class Main extends JFrame {
         InputStream Get_M_of_Home = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\WorldofTanks.wav");
         as = new AudioStream(Get_M_of_Home);
         //AudioPlayer.player.start(as);
-
         HandlerButton();
         animtor1.start();
         animtor2.start();
-    }
 
+    }
     private static void HandlerButton() {
         BT1.addActionListener(e ->{
              Home.setVisible(false);
@@ -54,8 +54,20 @@ public class Main extends JFrame {
     private static void CreateButton() {
         BT1 = new JButton("start");
         BT1.setSize(50,20);
-       // BT1.setLocation(200,100);
+        // BT1.setLocation(200,100);
         Home.add(BT1,BorderLayout.SOUTH);
+        // --------- create Button to select leve --------//
+        JButton hard  =  new JButton("Hard Leve");
+        JButton easy  =  new JButton("Easy Leve");
+        JButton medium  =  new JButton("Medium Leve");
+        //---------------------------------------------------//
+        hard.setSize(20,20);
+        easy.setSize(20,20);
+        medium.setSize(20,20);
+
+        Home.add(hard,BorderLayout.CENTER);
+        Home.add(easy,BorderLayout.EAST);
+        Home.add(medium,BorderLayout.NORTH);
 
     }
 
@@ -72,7 +84,7 @@ public class Main extends JFrame {
         glcanvas_of_Body_of_Game = new GLCanvas();
         glcanvas_of_Body_of_Game.addGLEventListener(body);
         glcanvas_of_Body_of_Game.addKeyListener(body);
-        body.setGLCanvas(glcanvas_of_Body_of_Game);
+        body.setGLCanvas(glcanvas_of_Body_of_Game,level );
         Body_of_Game.add(glcanvas_of_Body_of_Game,BorderLayout.CENTER);
         animtor2=null;
         animtor2 = new FPSAnimator(glcanvas_of_Body_of_Game,60);
@@ -81,8 +93,8 @@ public class Main extends JFrame {
     private static void CreateJframe() {
         //--------------------- Create  Home Frame ------------------------//
         Home = new JFrame("Tanks-game_home");
-        Home.setSize(500,500);
-        Home.setVisible(false);
+        Home.setSize(900,800);
+        Home.setVisible(true);
         centerWindow(Home);
         Home.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //Home.setLayout(null);
@@ -94,7 +106,6 @@ public class Main extends JFrame {
         centerWindow(Body_of_Game);
         Body_of_Game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-
 
     static  public void centerWindow(JFrame frame) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
