@@ -19,9 +19,19 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
     boolean paused = false ;
     boolean isKingDie= false;
     static AudioStream Shot_start = null;
+    static AudioStream bodySound = null;
     @Override
     public void init(GLAutoDrawable drawable) {
-        soundBegin(true,false);
+
+        InputStream bodysound = null;
+       try {
+           bodysound =new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\soundbody.wav");
+           bodySound = new AudioStream(bodysound);
+           AudioPlayer.player.start(bodySound);
+       }catch (Exception e){
+           System.out.println(e);
+       }
+
        for (int i = 0 ; i<numberOfPlayers ;i++){
             players.add(new Players(10+(i*70),10,1));
         }
@@ -63,7 +73,7 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
                if (shotData.get(i).direction ==1){
                    shotData.get(i).yShot +=.4;
                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Top")){
-                       System.out.println(19-removeWallY + "   " + removeWallX);
+                     //  System.out.println(19-removeWallY + "   " + removeWallX);
                        shotData.remove(i);
                        wallMap[19-removeWallY][removeWallX] = 0;
                    }
@@ -84,8 +94,12 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Right")){
                        shotData.remove(i);
                        wallMap[removeWallY][removeWallX] = 0;
+                   }else {
+                       System.out.println(removeWallX + "    " + removeWallY + "   "  + shotData.get(i).direction);
                    }
+
                    if ((removeWallX==9|| removeWallX==10)&&(removeWallY==17||removeWallY==18)) {
+                       System.out.println(removeWallX + "    " + removeWallY);
                        isKingDie=true;
 
                    }
@@ -93,7 +107,8 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
            }
        } else {
            drawTexture(gl,13,0, 0,100, 100);
-           soundBegin(true,true);
+           AudioPlayer.player.stop(bodySound);
+
        }
 
     }
@@ -272,19 +287,8 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
     }
 
     private void soundBegin(boolean isBody,boolean isEnd) {
-         InputStream Shot_sound;
+         InputStream Shot_sound = null;
          if(isBody){
-              if(!isEnd){
-                 try {
-                     Shot_sound = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\soundbody.wav");
-                     Shot_start = new AudioStream(Shot_sound);
-                 } catch (IOException e) {
-                     e.printStackTrace();
-                 }
-                 AudioPlayer.player.start(Shot_start);
-             }else {
-                  AudioPlayer.player.stop(Shot_start);
-              }
          }else {
              try {
                  Shot_sound = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\shotsound.wav");
