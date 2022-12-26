@@ -3,7 +3,7 @@ package com.company;
 public class Tanks {
     float x = 10,y = 10;
     int direction =1, indexTexture = 0;
-    int timeChange = 0, timeShot = 0,randomDirection = 2;
+    int timeChange = 0, timeShot = 0,randomDirection = 3;
     boolean enemyShot = false;
 
     Tanks(float x, float y , int direction) {
@@ -27,23 +27,23 @@ public class Tanks {
         }
 
         if (timeChange++ == 100) {
-            randomDirection = 1 + (int) (Math.random() * 4);
+            randomDirection = (int) (Math.random() * 4);
             timeChange = 0;
         }
 
         moveDirection(randomDirection, (float) (0.2));
     }
     public void moveDirection (int direction, float speed) {
-            if(direction == 1){
+            if(direction == 0 || direction == 4){
                 indexTexture = 9;
                 y+= speed;
-            }else if (direction == 2){
+            }else if (direction == 1){
                 indexTexture = 10;
                 x+= speed;
-            }else if (direction == 4){
+            }else if (direction == 3){
                 indexTexture = 12;
                 y-= speed;
-            }else if(direction == 3){
+            }else if(direction == 2){
                 indexTexture = 11;
                 x-= speed;
             }

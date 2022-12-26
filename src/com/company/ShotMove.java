@@ -7,16 +7,21 @@ public class ShotMove {
     int direction = 0 , indexTexture = 0 ;
 
 
-    ShotMove (float x, float y, int direction) {
+
+    ShotMove (float x, float y, int direction , boolean isEnemy) {
+
         this.direction = direction;
         this.xShot = (float) (x);
         this.yShot = (float) (y);
-        indexTexture = direction + 4;
+        indexTexture = direction ;
 
         if(direction == 2 || direction == 3) {
             float temp = widthShot;
             widthShot = heightShot;
             heightShot = temp;
         }
+
+
+
     }
 }

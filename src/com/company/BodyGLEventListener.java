@@ -17,14 +17,14 @@ import java.io.InputStream;
 
 public class BodyGLEventListener extends Main implements GLEventListener , KeyListener {
 
-
-
+    boolean paused = false ;
     @Override
     public void init(GLAutoDrawable drawable) {
-        tanks.add(new Tanks(70, 40 , 4 ));
-        tanks.add(new Tanks(70, 50 , 4 ));
-        tanks.add(new Tanks(30, 70 , 4 ));
-
+        soundBegin(true);
+       for (int i = 0 ; i<numberOfPlayers ;i++){
+            players.add(new Players(10+(i*70),10,1));
+        }
+        tanks.add(new Tanks(12.5F, 80 , 4 ));
         GL gl = drawable.getGL();
         gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         gl.glViewport(0, 0, 100,100);
@@ -46,67 +46,76 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
         }
 
     }
-
     @Override
     public void display(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
         gl.glClear (GL.GL_COLOR_BUFFER_BIT);
         createTanks(gl, true);
-        drawMap(gl);
-        createTanks(gl, false );
-        for (int i = 0; i < shotData.size() ; i ++){
-            drawTexture(gl,shotData.get(i).indexTexture, shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).widthShot, shotData.get(i).heightShot);
-            if (shotData.get(i).direction ==1){
-                shotData.get(i).yShot +=.4;
-                if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Top")){
-                    shotData.remove(i);
-                    wallMap[19-removeWallY][removeWallX] = 0;
-                }
-            }else if (shotData.get(i).direction ==3){
-                shotData.get(i).xShot -=.4;
-                if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Left")){
-                    shotData.remove(i);
-                    wallMap[removeWallY][removeWallX] = 0;
-                }
-            }else if (shotData.get(i).direction ==4){
-                shotData.get(i).yShot -=.4;
-                if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Down")){
-                    shotData.remove(i);
-                    wallMap[removeWallY][removeWallX] = 0;
-                }
-            }else if (shotData.get(i).direction == 2){
-                shotData.get(i).xShot +=.4;
-                if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Right")){
-                    shotData.remove(i);
-                    wallMap[removeWallY][removeWallX] = 0;
-                }
-            }
-        }
+       if (paused){
+           drawTexture(gl,13,0, 0,100, 100);
+       }else {
+           drawMap(gl);
+           createTanks(gl, false );
+           for (int i = 0; i < shotData.size() ; i ++){
+              // System.out.println(shotData.get(i).direction);
+               drawTexture(gl,shotData.get(i).indexTexture, shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).widthShot, shotData.get(i).heightShot);
+               if (shotData.get(i).direction ==1){
+                   shotData.get(i).yShot +=.4;
+                   if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Top")){
+                       shotData.remove(i);
+                       wallMap[19-removeWallY][removeWallX+1] = 0;
+                   }
+               }else if (shotData.get(i).direction ==3){
+                   shotData.get(i).xShot -=.4;
+                   if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Left")){
+                       shotData.remove(i);
+                       wallMap[removeWallY][removeWallX] = 0;
+                   }
+               }else if (shotData.get(i).direction ==4){
+                   shotData.get(i).yShot -=.4;
+                   if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Down")){
+                       shotData.remove(i);
+                       wallMap[removeWallY][removeWallX] = 0;
+                   }
+               }else if (shotData.get(i).direction == 2){
+                   shotData.get(i).xShot +=.4;
+                   if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Right")){
+                       shotData.remove(i);
+                       wallMap[removeWallY][removeWallX] = 0;
+                   }
+               }
+           }
+       }
 
     }
     private void createTanks(GL gl, boolean isEnemy) {
-      if(isEnemy){
+        int temp;
+        if(isEnemy){
           for (int i = 0; i < tanks.size(); i++) {
               drawTexture(gl, tanks.get(i).indexTexture , tanks.get(i).x, tanks.get(i).y,tankWidth, tankHeight);
-              if(!canMove(true, tanks.get(i).x, tanks.get(i).y, "Top")
+              if( tanks.get(i).x >=89 || tanks.get(i).x <6 || tanks.get(i).y >=89 || tanks.get(i).y <6||
+                      !canMove(true, tanks.get(i).x, tanks.get(i).y, "Top")
                       || !canMove(true, tanks.get(i).x, tanks.get(i).y, "Left")
                       || !canMove(true, tanks.get(i).x, tanks.get(i).y, "Down")
                       || !canMove(true, tanks.get(i).x, tanks.get(i).y, "Right")
-                      || tanks.get(i).x >= 89 || tanks.get(i).x <= 6
-                      || tanks.get(i).y >= 89 || tanks.get(i).y <= 6
+
               ){
-                  int temp = (tanks.get(i).randomDirection+1)%4;
-                  tanks.get(i).setRandomDirection((temp++));
+                   temp = (tanks.get(i).randomDirection+1)%4;
+                   tanks.get(i).setRandomDirection((temp));
               }
               tanks.get(i).generateRandomMove();
               if(tanks.get(i).enemyShot) {
-                  float x = (tanks.get(i).randomDirection == 1 || tanks.get(i).randomDirection == 4) ? tanks.get(i).x + tankWidth/2 : (tanks.get(i).randomDirection == 2) ? tanks.get(i).x+tankWidth : tanks.get(i).x;
-                  float y = (tanks.get(i).randomDirection == 2 || tanks.get(i).randomDirection == 3) ? tanks.get(i).y + tankHeight/2 : (tanks.get(i).randomDirection == 1) ? tanks.get(i).y+tankHeight : tanks.get(i).y;
-                  shotData.add(new ShotMove(x, y,tanks.get(i).randomDirection));
+                  float x = (tanks.get(i).randomDirection == 0 || tanks.get(i).randomDirection == 3) ? tanks.get(i).x + tankWidth/2 : (tanks.get(i).randomDirection == 1) ? tanks.get(i).x+tankWidth : tanks.get(i).x;
+                  float y = (tanks.get(i).randomDirection == 1 || tanks.get(i).randomDirection == 2) ? tanks.get(i).y + tankHeight/2 : (tanks.get(i).randomDirection == 0) ? tanks.get(i).y+tankHeight : tanks.get(i).y;
+                //  System.out.println(tanks.get(i).randomDirection+4);
+                  shotData.add(new ShotMove(x, y,tanks.get(i).randomDirection+1 ,true));
               }
           }
       }else {
-          drawTexture(gl, directionTank, poxTanks, poyTanks,tankWidth, tankHeight);
+            for (int i = 0 ; i < players.size() ; i++){
+                drawTexture(gl, players.get(i).direction, players.get(i).x, players.get(i).y,tankWidth, tankHeight);
+            }
+
       }
 
     }
@@ -146,36 +155,72 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
     @Override
     public void keyPressed(KeyEvent e) {
         double scale = 0.1;
-        double max_X = 95, max_Y = 95, min_X = 0, min_Y = 0;
+        double max_X = 90, max_Y = 90, min_X = 6, min_Y = 6;
         if (e.getKeyCode()==KeyEvent.VK_UP){
-            if (poyTanks+scale*2<max_Y&&canMove(true, poxTanks, poyTanks,"Top")) {
-                poyTanks += scale * 4;
+            if (players.get(0).y+scale*2<max_Y && canMove(true, players.get(0).x, players.get(0).y,"Top")) {
+                players.get(0).y += scale * 4;
             }
-            directionTank = 1 ;
+            players.get(0).direction = 1 ;
         }
         if (e.getKeyCode()==KeyEvent.VK_DOWN){
-            if (poyTanks-scale*2>min_Y&&canMove(true, poxTanks, poyTanks,"Down")) {
-                poyTanks -= scale * 4;
+            if (players.get(0).y-scale*2>min_Y&&canMove(true, players.get(0).x, players.get(0).y,"Down")) {
+                players.get(0).y -= scale * 4;
             }
-            directionTank = 4 ;
+            players.get(0).direction = 4 ;
         }
         if (e.getKeyCode()==KeyEvent.VK_LEFT){
-            if (poxTanks-scale*2>min_X&&canMove(true, poxTanks, poyTanks,"Left")) {
-                poxTanks -= scale * 4;
+            if (players.get(0).x-scale*2>min_X&&canMove(true, players.get(0).x, players.get(0).y,"Left")) {
+                players.get(0).x -= scale * 4;
             }
-            directionTank = 3 ;
+            players.get(0).direction = 3 ;
         }
         if (e.getKeyCode()==KeyEvent.VK_RIGHT){
-            if (poxTanks+scale*2<max_X&&canMove(true, poxTanks, poyTanks,"Right")) {
-                poxTanks += scale * 4;
+            if (players.get(0).x+scale*2<max_X&&canMove(true,players.get(0).x, players.get(0).y,"Right")) {
+                players.get(0).x += scale * 4;
             }
-            directionTank = 2 ;
+            players.get(0).direction = 2 ;
         }
         if (e.getKeyCode()==KeyEvent.VK_SPACE){
-            float x = (directionTank == 1 || directionTank == 4) ? poxTanks + tankWidth/2 : (directionTank == 2) ? poxTanks+tankWidth : poxTanks;
-            float y = (directionTank == 2 || directionTank == 3) ? poyTanks + tankHeight/2 : (directionTank == 1) ? poyTanks+tankHeight : poyTanks;
-            shotData.add(new ShotMove(x, y,directionTank));
-            soundBegin();
+            float x = (players.get(0).direction == 1 || players.get(0).direction == 4) ? players.get(0).x + tankWidth/2 : (players.get(0).direction == 2) ?  players.get(0).x+tankWidth :  players.get(0).x;
+            float y = (players.get(0).direction == 2 || players.get(0).direction == 3) ? players.get(0).y + tankHeight/2 : (players.get(0).direction == 1) ?  players.get(0).y+tankHeight : players.get(0).y;
+            shotData.add(new ShotMove(x, y,players.get(0).direction, false));
+            soundBegin(false);
+        }
+        if(players.size()==2){
+            if (e.getKeyCode()==KeyEvent.VK_W){
+                if (players.get(1).y+scale*2<max_Y && canMove(true, players.get(1).x, players.get(1).y,"Top")) {
+                    players.get(1).y += scale * 4;
+                }
+                players.get(1).direction = 1 ;
+            }
+            if (e.getKeyCode()==KeyEvent.VK_S){
+                if (players.get(1).y-scale*2>min_Y&&canMove(true, players.get(1).x, players.get(1).y,"Down")) {
+                    players.get(1).y -= scale * 4;
+                }
+                players.get(1).direction = 4 ;
+            }
+            if (e.getKeyCode()==KeyEvent.VK_A){
+                if (players.get(1).x-scale*2>min_X&&canMove(true, players.get(1).x, players.get(1).y,"Left")) {
+                    players.get(1).x -= scale * 4;
+                }
+                players.get(1).direction = 3 ;
+            }
+            if (e.getKeyCode()==KeyEvent.VK_D){
+                if (players.get(1).x+scale*2<max_X&&canMove(true,players.get(1).x, players.get(1).y,"Right")) {
+                    players.get(1).x += scale * 4;
+                }
+                players.get(1).direction = 2 ;
+            }
+            if (e.getKeyCode()==KeyEvent.VK_F){
+                float x = (players.get(1).direction == 1 || players.get(1).direction == 4) ? players.get(1).x + tankWidth/2 : (players.get(1).direction == 2) ?  players.get(1).x+tankWidth :  players.get(1).x;
+                float y = (players.get(1).direction == 2 || players.get(1).direction == 3) ? players.get(1).y + tankHeight/2 : (players.get(1).direction == 1) ?  players.get(1).y+tankHeight : players.get(1).y;
+
+                shotData.add(new ShotMove(x, y,players.get(1).direction,false));
+                soundBegin(false);
+            }
+        }
+        if(e.getKeyCode()== KeyEvent.VK_P){
+            paused = !paused;
         }
     
     }
@@ -184,9 +229,11 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
         int row = 0, colum = 0;
         float widthShape = isTank? tankWidth : 1 ;
         float heightShape = isTank? tankHeight : 1 ;
-        if (x > 95 || x < 5 || y > 95 || y < 5){
-            return false;
-        }
+       if (!isTank){
+           if (x > 95 || x < 2 || y > 95 || y < 2){
+               return false;
+           }
+       }
         if (direction=="Top"){
             row = (int)(Math.floor((y+ heightShape +0.4)/5));
             colum = (int)(Math.floor((x)/5));
@@ -208,22 +255,32 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
                 row = row +(19-row*2);
                 if (isTank ?wallMap[row][colum]==0 &&wallMap[row-1][colum]==0 :wallMap[row][colum]==0 ) return true;
         }
-
             removeWallY = row;
             removeWallX = colum;
             return false;
     }
 
-    private void soundBegin() {
+    private void soundBegin(boolean isBody) {
          InputStream Shot_sound;
          AudioStream Shot_start = null;
-            try {
-                Shot_sound = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\shotsound.wav");
-                Shot_start = new AudioStream(Shot_sound);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        AudioPlayer.player.start(Shot_start);
+         if(isBody){
+             try {
+                 Shot_sound = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\soundbody.wav");
+                 Shot_start = new AudioStream(Shot_sound);
+             } catch (IOException e) {
+                 e.printStackTrace();
+             }
+             AudioPlayer.player.start(Shot_start);
+         }else {
+             try {
+                 Shot_sound = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\shotsound.wav");
+                 Shot_start = new AudioStream(Shot_sound);
+             } catch (IOException e) {
+                 e.printStackTrace();
+             }
+             AudioPlayer.player.start(Shot_start);
+         }
+
     }
 
     @Override
