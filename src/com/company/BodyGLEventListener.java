@@ -62,8 +62,9 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
                if (shotData.get(i).direction ==1){
                    shotData.get(i).yShot +=.4;
                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Top")){
+                       System.out.println(19-removeWallY + "   " + removeWallX);
                        shotData.remove(i);
-                       wallMap[19-removeWallY][removeWallX+1] = 0;
+                       wallMap[19-removeWallY][removeWallX] = 0;
                    }
                }else if (shotData.get(i).direction ==3){
                    shotData.get(i).xShot -=.4;
@@ -125,6 +126,8 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
                 for (int j = 0; j< wallMap[i].length; j++){
                     if (wallMap[wallMap.length-i-1][j]==1){
                         drawTexture(gl,0, (float)(j*wallWidth),(float)(i*wallHeight), (float)wallWidth, (float)wallHeight);
+                    }else if(wallMap[wallMap.length-i-1][j]==2){
+                        drawTexture(gl,14, (float)((j*wallWidth)),(float)((i*wallHeight)), (float)wallWidth+10, (float)wallHeight+10);
                     }
                 }
             }
