@@ -1,5 +1,6 @@
 package com.company;
 
+import com.TextureReader;
 import com.sun.opengl.util.FPSAnimator;
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
@@ -11,12 +12,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 public class Main extends JFrame {
     static  JFrame Home , Body_of_Game;
     static HomeGLEventListener home = new HomeGLEventListener();
     static BodyGLEventListener body;
-    static  int level = 1 ;
+    static  JButton hard, easy, medium;
 
     static {
         try {
@@ -25,52 +27,73 @@ public class Main extends JFrame {
             e.printStackTrace();
         }
     }
-
     static GLCanvas glcanvas_of_Home,glcanvas_of_Body_of_Game ;
-    static  JButton BT1 ;
-    static  AudioStream as;
+    static AudioStream audioStream;
     static FPSAnimator animtor1,animtor2  ;
+    static int removeWallX, removeWallY;
+    final int canvasWidth = 100, canvasHeight = 100;
+    final int wallWidth = 5, wallHeight = 5;
+    final  int tankWidth = 5, tankHeight = 5;
+    float poxTanks = 10, poyTanks = 10;
+    int directionTank = 1;
+    static int [][] wallMap;
+    ArrayList<Tanks> tanks = new ArrayList<>();
+    String textureName[]= {"Stone.png", "Tank5T.png", "Tank5R.png", "Tank5L.png", "Tank5B.png", "Shot2T.png", "Shot2R.png",
+            "Shot2L.png", "Shot2B.png", "Enemy1T.png", "Enemy1R.png", "Enemy1L.png", "Enemy1B.png" };
+    TextureReader.Texture texture[] = new TextureReader.Texture[textureName.length] ;
+    int textureIndex[] = new int[textureName.length];
+
+    ArrayList <ShotMove> shotData = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         CreateJframe();
-        CreateGLCanvas();
         CreateButton();
-        InputStream Get_M_of_Home = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\WorldofTanks.wav");
-        as = new AudioStream(Get_M_of_Home);
-        //AudioPlayer.player.start(as);
         HandlerButton();
+        CreateGLCanvas();
+        InputStream Get_M_of_Home = new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\WorldofTanks.wav");
+        audioStream = new AudioStream(Get_M_of_Home);
+        AudioPlayer.player.start(audioStream);
         animtor1.start();
         animtor2.start();
 
     }
     private static void HandlerButton() {
-        BT1.addActionListener(e ->{
-             Home.setVisible(false);
-             Body_of_Game.setVisible(true);
-             AudioPlayer.player.stop(as);
+        easy.addActionListener(e->{
+            Home.setVisible(false);
+            Body_of_Game.setVisible(true);
+            AudioPlayer.player.stop(audioStream);
+            wallMap = new WallMaps().easyMap;
+        });
+        medium.addActionListener(e->{
+            Home.setVisible(false);
+            Body_of_Game.setVisible(true);
+            AudioPlayer.player.stop(audioStream);
+            wallMap = new WallMaps().mediumMap;
+        });
+        hard.addActionListener(e->{
+            Home.setVisible(false);
+            Body_of_Game.setVisible(true);
+            AudioPlayer.player.stop(audioStream);
+            wallMap = new WallMaps().hardMap;
         });
     }
-
     private static void CreateButton() {
-        BT1 = new JButton("start");
-        BT1.setSize(50,20);
-        // BT1.setLocation(200,100);
-        Home.add(BT1,BorderLayout.SOUTH);
         // --------- create Button to select leve --------//
-        JButton hard  =  new JButton("Hard Leve");
-        JButton easy  =  new JButton("Easy Leve");
-        JButton medium  =  new JButton("Medium Leve");
-        //---------------------------------------------------//
+         easy  =  new JButton(" Easy ");
+         medium  =  new JButton(" Medium ");
+         hard  =  new JButton(" Hard ");
+         //---------------------------------------------------//
         hard.setSize(20,20);
         easy.setSize(20,20);
         medium.setSize(20,20);
-
-        Home.add(hard,BorderLayout.CENTER);
-        Home.add(easy,BorderLayout.EAST);
-        Home.add(medium,BorderLayout.NORTH);
-
+        // create
+        JPanel p = new JPanel();
+        p.setSize(900,90);
+        p.add(easy,BorderLayout.WEST);
+        p.add(medium,BorderLayout.CENTER);
+        p.add(hard,BorderLayout.EAST);
+        Home.add(p,BorderLayout.SOUTH);
     }
-
     private static void CreateGLCanvas() {
         // ------------- Create a glcanvas_of_Home ------------------//
         glcanvas_of_Home = new GLCanvas();
@@ -84,12 +107,10 @@ public class Main extends JFrame {
         glcanvas_of_Body_of_Game = new GLCanvas();
         glcanvas_of_Body_of_Game.addGLEventListener(body);
         glcanvas_of_Body_of_Game.addKeyListener(body);
-        body.setGLCanvas(glcanvas_of_Body_of_Game,level );
         Body_of_Game.add(glcanvas_of_Body_of_Game,BorderLayout.CENTER);
         animtor2=null;
         animtor2 = new FPSAnimator(glcanvas_of_Body_of_Game,60);
     }
-
     private static void CreateJframe() {
         //--------------------- Create  Home Frame ------------------------//
         Home = new JFrame("Tanks-game_home");
@@ -102,11 +123,10 @@ public class Main extends JFrame {
         //--------------------- Create  Body_of_Game Frame ------------------------//
         Body_of_Game = new JFrame("Tanks-game");
         Body_of_Game.setSize(900,800);
-        Body_of_Game.setVisible(true);
+        Body_of_Game.setVisible(false);
         centerWindow(Body_of_Game);
         Body_of_Game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
-
     static  public void centerWindow(JFrame frame) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension frameSize  = frame.getSize();
