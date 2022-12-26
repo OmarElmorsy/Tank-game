@@ -6,7 +6,6 @@ import sun.audio.AudioStream;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
 import java.awt.event.KeyEvent;
@@ -15,32 +14,17 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
-public class BodyGLEventListener implements GLEventListener , KeyListener {
+public class BodyGLEventListener extends Main implements GLEventListener , KeyListener {
 
-    private GLCanvas gcl;
-    private final int canvasWidth = 100, canvasHeight = 100;
-    private final int wallWidth = 5, wallHeight = 5;
-    private final  int tankWidth = 5, tankHeight = 5;
-    float poxTanks = 10, poyTanks = 10;
-    int directionTank = 1;
-    int removeWallX, removeWallY , level = 0;
-    ArrayList<Tanks> tanks = new ArrayList<>();
-    String textureName[]= {"Stone.png", "Tank5T.png", "Tank5R.png", "Tank5L.png", "Tank5B.png", "Shot2T.png", "Shot2R.png",
-                            "Shot2L.png", "Shot2B.png", "Enemy1T.png", "Enemy1R.png", "Enemy1L.png", "Enemy1B.png" };
-    TextureReader.Texture texture[] = new TextureReader.Texture[textureName.length] ;
-    int textureIndex[] = new int[textureName.length];
-    WallMaps walls = new WallMaps();
-    ArrayList <ShotMove> shotData = new ArrayList<>();
 
-    public void setGLCanvas(GLCanvas gcl , int Level){
-        this.gcl=gcl;
-        this.level = level ;
-    }
+
     @Override
     public void init(GLAutoDrawable drawable) {
-        tanks.add(new Tanks(35, 80 , 4 ));
+        tanks.add(new Tanks(70, 40 , 4 ));
+        tanks.add(new Tanks(70, 50 , 4 ));
+        tanks.add(new Tanks(30, 70 , 4 ));
+
         GL gl = drawable.getGL();
         gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         gl.glViewport(0, 0, 100,100);
@@ -62,63 +46,64 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
         }
 
     }
+
     @Override
     public void display(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
         gl.glClear (GL.GL_COLOR_BUFFER_BIT);
+        createTanks(gl, true);
         drawMap(gl);
-        creatTanks(gl, true);
-        creatTanks(gl, false );
+        createTanks(gl, false );
         for (int i = 0; i < shotData.size() ; i ++){
             drawTexture(gl,shotData.get(i).indexTexture, shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).widthShot, shotData.get(i).heightShot);
             if (shotData.get(i).direction ==1){
                 shotData.get(i).yShot +=.4;
                 if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Top")){
                     shotData.remove(i);
-                    walls.hardMap[19- removeWallY][removeWallX] = 0;
+                    wallMap[19-removeWallY][removeWallX] = 0;
                 }
             }else if (shotData.get(i).direction ==3){
                 shotData.get(i).xShot -=.4;
                 if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Left")){
                     shotData.remove(i);
-                    walls.hardMap[removeWallY][removeWallX] = 0;
+                    wallMap[removeWallY][removeWallX] = 0;
                 }
             }else if (shotData.get(i).direction ==4){
                 shotData.get(i).yShot -=.4;
                 if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Down")){
                     shotData.remove(i);
-                    walls.hardMap[removeWallY][removeWallX] = 0;
+                    wallMap[removeWallY][removeWallX] = 0;
                 }
             }else if (shotData.get(i).direction == 2){
                 shotData.get(i).xShot +=.4;
                 if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Right")){
                     shotData.remove(i);
-                    walls.hardMap[removeWallY][removeWallX] = 0;
+                    wallMap[removeWallY][removeWallX] = 0;
                 }
             }
         }
 
     }
-
-    private void creatTanks(GL gl, boolean isEnemy) {
+    private void createTanks(GL gl, boolean isEnemy) {
       if(isEnemy){
-
           for (int i = 0; i < tanks.size(); i++) {
               drawTexture(gl, tanks.get(i).indexTexture , tanks.get(i).x, tanks.get(i).y,tankWidth, tankHeight);
-              if(canMove(true, tanks.get(i).x, tanks.get(i).y, "Top")){
-                  tanks.get(i).generateRandomMove("Top");
-              }else  if (canMove(true, tanks.get(i).x, tanks.get(i).y, "Left")){
-                        tanks.get(i).generateRandomMove("Left");
-              }else  if (canMove(true, tanks.get(i).x, tanks.get(i).y, "Down")){
-                       tanks.get(i).generateRandomMove("Down");
-              }else  if (canMove(true, tanks.get(i).x, tanks.get(i).y, "Right")){
-                     System.out.println("can move");
-                  tanks.get(i).generateRandomMove("Right");
-              }else {
-                  tanks.get(i).generateRandomMove("Cant_Move");
+              if(!canMove(true, tanks.get(i).x, tanks.get(i).y, "Top")
+                      || !canMove(true, tanks.get(i).x, tanks.get(i).y, "Left")
+                      || !canMove(true, tanks.get(i).x, tanks.get(i).y, "Down")
+                      || !canMove(true, tanks.get(i).x, tanks.get(i).y, "Right")
+                      || tanks.get(i).x >= 89 || tanks.get(i).x <= 6
+                      || tanks.get(i).y >= 89 || tanks.get(i).y <= 6
+              ){
+                  int temp = (tanks.get(i).randomDirection+1)%4;
+                  tanks.get(i).setRandomDirection((temp++));
               }
-
-
+              tanks.get(i).generateRandomMove();
+              if(tanks.get(i).enemyShot) {
+                  float x = (tanks.get(i).randomDirection == 1 || tanks.get(i).randomDirection == 4) ? tanks.get(i).x + tankWidth/2 : (tanks.get(i).randomDirection == 2) ? tanks.get(i).x+tankWidth : tanks.get(i).x;
+                  float y = (tanks.get(i).randomDirection == 2 || tanks.get(i).randomDirection == 3) ? tanks.get(i).y + tankHeight/2 : (tanks.get(i).randomDirection == 1) ? tanks.get(i).y+tankHeight : tanks.get(i).y;
+                  shotData.add(new ShotMove(x, y,tanks.get(i).randomDirection));
+              }
           }
       }else {
           drawTexture(gl, directionTank, poxTanks, poyTanks,tankWidth, tankHeight);
@@ -127,32 +112,13 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
     }
 
     private void drawMap(GL gl) {
-        if (level==1){
-            for (int i = 0; i < walls.easyMap.length; i++ ){
-                for (int j = 0; j< walls.easyMap[i].length; j++){
-                    if (walls.hardMap[walls.easyMap.length-i-1][j]==1){
+            for (int i = 0; i < wallMap.length; i++ ){
+                for (int j = 0; j< wallMap[i].length; j++){
+                    if (wallMap[wallMap.length-i-1][j]==1){
                         drawTexture(gl,0, (float)(j*wallWidth),(float)(i*wallHeight), (float)wallWidth, (float)wallHeight);
                     }
                 }
             }
-        }else if(level==2){
-            for (int i = 0; i < walls.mediumMap.length; i++ ){
-                for (int j = 0; j< walls.mediumMap[i].length; j++){
-                    if (walls.hardMap[walls.mediumMap.length-i-1][j]==1){
-                        drawTexture(gl,0, (float)(j*wallWidth),(float)(i*wallHeight), (float)wallWidth, (float)wallHeight);
-                    }
-                }
-            }
-        }else if (level==3){
-            for (int i = 0; i < walls.hardMap.length; i++ ){
-                for (int j = 0; j< walls.hardMap[i].length; j++){
-                    if (walls.hardMap[walls.hardMap.length-i-1][j]==1){
-                        drawTexture(gl,0, (float)(j*wallWidth),(float)(i*wallHeight), (float)wallWidth, (float)wallHeight);
-                    }
-                }
-            }
-        }
-
     }
 
     public void drawTexture(GL gl , int index,float xLeft, float yBottom, float Width,float Height) {
@@ -176,6 +142,7 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
         gl.glPopMatrix();
         gl.glDisable(GL.GL_BLEND);
     }
+
     @Override
     public void keyPressed(KeyEvent e) {
         double scale = 0.1;
@@ -217,31 +184,29 @@ public class BodyGLEventListener implements GLEventListener , KeyListener {
         int row = 0, colum = 0;
         float widthShape = isTank? tankWidth : 1 ;
         float heightShape = isTank? tankHeight : 1 ;
-
         if (x > 95 || x < 5 || y > 95 || y < 5){
-            //System.out.println("correct work ");
             return false;
         }
         if (direction=="Top"){
             row = (int)(Math.floor((y+ heightShape +0.4)/5));
             colum = (int)(Math.floor((x)/5));
-            if (isTank ? walls.hardMap[row +(19-row*2)][colum]==0 && walls.hardMap[row+(19-row*2)][colum+1]==0 :walls.hardMap[row +(19-row*2)][colum]==0 ) return true;
+            if (isTank ?wallMap[row +(19-row*2)][colum]==0 &&wallMap[row+(19-row*2)][colum+1]==0 : wallMap[row +(19-row*2)][colum]==0 ) return true;
         }else if(direction=="Right"){
                 row = (int)(Math.floor((y+ heightShape)/5));
                 colum= (int)(Math.floor((x+ widthShape + 0.4)/5));
                 row = row +(19-row*2);
-                System.out.println( "row : " + "  col : " + colum);
-                if (isTank ? walls.hardMap[row][colum]==0 && walls.hardMap[row+1][colum]==0 : walls.hardMap[row][colum]==0) return true;
+//                System.out.println( "row : " + "  col : " + colum);
+                if (isTank ?wallMap[row][colum]==0 &&wallMap[row+1][colum]==0 :wallMap[row][colum]==0) return true;
         }else if (direction=="Down"){
                 row = (int)(Math.floor((y-.4)/5));
                 colum= (int)(Math.floor((x)/5));
                 row = row +(19-row*2);
-                if (isTank ? walls.hardMap[row][colum]==0 && walls.hardMap[row][colum+1]==0 : walls.hardMap[row][colum]==0) return true;
+                if (isTank ?wallMap[row][colum]==0 &&wallMap[row][colum+1]==0 :wallMap[row][colum]==0) return true;
         }else if (direction=="Left"){
                 row =(int)(Math.floor((y)/5));
                 colum= (int)(Math.floor((x-0.4)/5));
                 row = row +(19-row*2);
-                if (isTank ? walls.hardMap[row][colum]==0 && walls.hardMap[row-1][colum]==0 : walls.hardMap[row][colum]==0 ) return true;
+                if (isTank ?wallMap[row][colum]==0 &&wallMap[row-1][colum]==0 :wallMap[row][colum]==0 ) return true;
         }
 
             removeWallY = row;
