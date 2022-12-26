@@ -8,6 +8,7 @@ public class ShotMove {
 
 
 
+
     ShotMove (float x, float y, int direction , boolean isEnemy) {
 
         this.direction = direction;
@@ -20,8 +21,6 @@ public class ShotMove {
             widthShot = heightShot;
             heightShot = temp;
         }
-
-
-
     }
+
 }
