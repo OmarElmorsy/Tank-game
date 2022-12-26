@@ -19,7 +19,6 @@ public class Main extends JFrame {
     static HomeGLEventListener home = new HomeGLEventListener();
     static BodyGLEventListener body;
     static  JButton hard, easy, medium;
-
     static {
         try {
             body = new BodyGLEventListener();
@@ -34,12 +33,12 @@ public class Main extends JFrame {
     final int canvasWidth = 100, canvasHeight = 100;
     final int wallWidth = 5, wallHeight = 5;
     final  int tankWidth = 5, tankHeight = 5;
-    float poxTanks = 10, poyTanks = 10;
-    int directionTank = 1;
+    int numberOfPlayers = 2;
     static int [][] wallMap;
     ArrayList<Tanks> tanks = new ArrayList<>();
+    ArrayList<Players> players = new ArrayList<>();
     String textureName[]= {"Stone.png", "Tank5T.png", "Tank5R.png", "Tank5L.png", "Tank5B.png", "Shot2T.png", "Shot2R.png",
-            "Shot2L.png", "Shot2B.png", "Enemy1T.png", "Enemy1R.png", "Enemy1L.png", "Enemy1B.png" };
+                            "Shot2L.png", "Shot2B.png", "Enemy1T.png", "Enemy1R.png", "Enemy1L.png", "Enemy1B.png", "paused.png"};
     TextureReader.Texture texture[] = new TextureReader.Texture[textureName.length] ;
     int textureIndex[] = new int[textureName.length];
 
