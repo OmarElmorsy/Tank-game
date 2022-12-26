@@ -39,7 +39,7 @@ public class Main extends JFrame {
     ArrayList<Players> players = new ArrayList<>();
     String textureName[]= {"Stone.png", "Tank5T.png", "Tank5R.png", "Tank5L.png", "Tank5B.png", "Shot2T.png", "Shot2R.png",
                             "Shot2L.png", "Shot2B.png", "Enemy1T.png", "Enemy1R.png", "Enemy1L.png", "Enemy1B.png", "paused.png",
-                            "King.png"};
+                            "King.png", "Defeat.png"};
     TextureReader.Texture texture[] = new TextureReader.Texture[textureName.length] ;
     int textureIndex[] = new int[textureName.length];
 

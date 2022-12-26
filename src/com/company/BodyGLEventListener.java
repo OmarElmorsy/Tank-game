@@ -70,43 +70,65 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
            for (int i = 0; i < shotData.size() ; i ++){
               // System.out.println(shotData.get(i).direction);
                drawTexture(gl,shotData.get(i).indexTexture, shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).widthShot, shotData.get(i).heightShot);
+               playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot );
+
                if (shotData.get(i).direction ==1){
+                   playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot );
                    shotData.get(i).yShot +=.4;
                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Top")){
                      //  System.out.println(19-removeWallY + "   " + removeWallX);
                        shotData.remove(i);
                        wallMap[19-removeWallY][removeWallX] = 0;
                    }
+
+                   if ((removeWallX==9&&removeWallY==18)) {
+                       System.out.println(removeWallX + "    " + removeWallY);
+                       isKingDie=true;
+
+                   }
                }else if (shotData.get(i).direction ==3){
+                   playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot);
                    shotData.get(i).xShot -=.4;
+
                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Left")){
                        shotData.remove(i);
                        wallMap[removeWallY][removeWallX] = 0;
                    }
+                   if ((removeWallX==9&&removeWallY==18)) {
+                       System.out.println(removeWallX + "    " + removeWallY);
+                       isKingDie=true;
+
+                   }
+
                }else if (shotData.get(i).direction ==4){
+                   playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot);
                    shotData.get(i).yShot -=.4;
                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Down")){
                        shotData.remove(i);
                        wallMap[removeWallY][removeWallX] = 0;
                    }
+                   if ((removeWallX==9&&removeWallY==18)) {
+                       System.out.println(removeWallX + "    " + removeWallY);
+                       isKingDie=true;
+
+                   }
                }else if (shotData.get(i).direction == 2){
+                   playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot);
                    shotData.get(i).xShot +=.4;
                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Right")){
                        shotData.remove(i);
                        wallMap[removeWallY][removeWallX] = 0;
-                   }else {
-                       System.out.println(removeWallX + "    " + removeWallY + "   "  + shotData.get(i).direction);
                    }
-
-                   if ((removeWallX==9|| removeWallX==10)&&(removeWallY==17||removeWallY==18)) {
+                   if (removeWallX==9&&removeWallY==18) {
                        System.out.println(removeWallX + "    " + removeWallY);
                        isKingDie=true;
 
                    }
                }
+
            }
        } else {
-           drawTexture(gl,13,0, 0,100, 100);
+           drawTexture(gl,15,0, 0,100, 100);
            AudioPlayer.player.stop(bodySound);
 
        }
@@ -143,14 +165,28 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
       }
 
     }
+    public void playerDie (float x, float y, int direction ,boolean isEnemyShot){
+        System.out.println(x + "  " + y + direction + "   "+ players.get(0).x + "   " + players.get(0).y);
+        if (isEnemyShot){
+           if (direction==1 && (x>=players.get(0).x && x<=players.get(0).x+5) && y == players.get(0).y ){
+               isKingDie = true;
+           }else if (direction==2 && (y>=players.get(0).y && y<=players.get(0).y+5) && x == players.get(0).x){
+               isKingDie = true ;
+           }else if (direction==3 && (y>=players.get(0).y && y<=players.get(0).y+5) && x == players.get(0).x+5){
+               isKingDie = true ;
+           }else if (direction==1 && (x>=players.get(0).x && x<=players.get(0).x+5) && y == players.get(0).y+5){
+               isKingDie =true;
+           }
+       }
 
+    }
     private void drawMap(GL gl) {
             for (int i = 0; i < wallMap.length; i++ ){
                 for (int j = 0; j< wallMap[i].length; j++){
                     if (wallMap[wallMap.length-i-1][j]==1){
                         drawTexture(gl,0, (float)(j*wallWidth),(float)(i*wallHeight), (float)wallWidth, (float)wallHeight);
                     }else if(wallMap[wallMap.length-i-1][j]==2){
-                        drawTexture(gl,14, (float)((j*wallWidth)),(float)((i*wallHeight)), (float)wallWidth+10, (float)wallHeight+10);
+                        drawTexture(gl,14, (float)((j*wallWidth)),(float)((i*wallHeight)), (float)wallWidth, (float)wallHeight);
                     }
                 }
             }
@@ -209,7 +245,7 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
         if (e.getKeyCode()==KeyEvent.VK_SPACE){
             float x = (players.get(0).direction == 1 || players.get(0).direction == 4) ? players.get(0).x + tankWidth/2 : (players.get(0).direction == 2) ?  players.get(0).x+tankWidth :  players.get(0).x;
             float y = (players.get(0).direction == 2 || players.get(0).direction == 3) ? players.get(0).y + tankHeight/2 : (players.get(0).direction == 1) ?  players.get(0).y+tankHeight : players.get(0).y;
-            shotData.add(new ShotMove(x, y,players.get(0).direction, false));
+            shotData.add(new ShotMove(x, y,players.get(0).direction,false));
             soundBegin(false,false);
         }
         if(players.size()==2){
@@ -253,9 +289,9 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
 
     private boolean canMove(boolean isTank,float x, float y,String direction) {
         int row = 0, colum = 0;
-        float widthShape = isTank? tankWidth : 1 ;
-        float heightShape = isTank? tankHeight : 1 ;
-       if (!isTank){
+        float widthShape = isTank? tankWidth : (float) (0.5) ;
+        float heightShape = isTank? tankHeight : 2 ;
+         if (!isTank){
            if (x > 95 || x < 2 || y > 95 || y < 2){
                return false;
            }
