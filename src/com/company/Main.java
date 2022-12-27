@@ -8,6 +8,8 @@ import sun.audio.AudioStream;
 import javax.media.opengl.GLCanvas;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,10 +17,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class Main extends JFrame {
-    static  JFrame Home , Body_of_Game;
+    static  JFrame Home , Body_of_Game, instructions ;
     static HomeGLEventListener home = new HomeGLEventListener();
     static BodyGLEventListener body;
-    static  JButton hard, easy, medium;
+    static  JButton hard, easy, medium , instructionB, back;
     static {
         try {
             body = new BodyGLEventListener();
@@ -33,7 +35,8 @@ public class Main extends JFrame {
     final int canvasWidth = 100, canvasHeight = 100;
     final int wallWidth = 5, wallHeight = 5;
     final  int tankWidth = 5, tankHeight = 5;
-    int numberOfPlayers = 2;
+    static JCheckBox checkBox = new JCheckBox("2player");
+    static int numberOfPlayers = 1, score = 0;
     static int [][] wallMap;
     ArrayList<Tanks> tanks = new ArrayList<>();
     ArrayList<Players> players = new ArrayList<>();
@@ -76,22 +79,56 @@ public class Main extends JFrame {
             AudioPlayer.player.stop(audioStream);
             wallMap = new WallMaps().hardMap;
         });
+        instructionB.addActionListener(e->{
+            instructions.setVisible(true);
+        });
+        back.addActionListener(e->{
+            instructions.setVisible(false);
+        });
+        checkBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if(e.getStateChange() == ItemEvent.SELECTED) {//checkbox has been selected
+                    numberOfPlayers = 2 ;
+                } else {
+                    numberOfPlayers = 1 ;
+                };
+            }
+        });
     }
     private static void CreateButton() {
         // --------- create Button to select leve --------//
          easy  =  new JButton(" Easy ");
          medium  =  new JButton(" Medium ");
          hard  =  new JButton(" Hard ");
+         instructionB= new JButton(" instruction ");
+         back = new JButton("Back");
          //---------------------------------------------------//
-        hard.setSize(20,20);
-        easy.setSize(20,20);
-        medium.setSize(20,20);
-        // create
+         hard.setSize(20,20);
+         easy.setSize(20,20);
+         medium.setSize(20,20);
+         instructionB.setSize(20,20);
+         back.setSize(20,20);
+         // create
         JPanel p = new JPanel();
-        p.setSize(900,90);
+        p.setSize(900,400);
         p.add(easy,BorderLayout.WEST);
         p.add(medium,BorderLayout.CENTER);
         p.add(hard,BorderLayout.EAST);
+        p.add(instructionB,BorderLayout.EAST);
+        p.add(checkBox,BorderLayout.EAST);
+        JPanel p2 = new JPanel();
+        p2.setSize(50,70);
+        p2.add(new JTextArea(" Player 1 Move : "));
+        p2.add(new JTextArea("UP :  ^   Down : v  Left : <  Right : > "));
+        p2.add(new JTextArea(" Player 1 Shot :  Space "));
+        p2.add(new JTextArea(" Player 2 Move  : "));
+        p2.add(new JTextArea(" UP : W   Down : S  Left : A  Right : D "));
+        p2.add(new JTextArea(" Player 2 Shot  : F "));
+        p2.add(new JTextArea(" Try To Save The Flag "));
+        p2.add(new JTextArea(" "));
+        instructions.add(p2);
+        instructions.add(back,BorderLayout.SOUTH);
         Home.add(p,BorderLayout.SOUTH);
     }
     private static void CreateGLCanvas() {
@@ -126,6 +163,11 @@ public class Main extends JFrame {
         Body_of_Game.setVisible(false);
         centerWindow(Body_of_Game);
         Body_of_Game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // -------------------------- Create Instructions Frame -----------------------//
+        instructions = new JFrame("Instructions");
+        instructions.setVisible(false);
+        instructions.setSize(320,200);
+        centerWindow(instructions);
     }
     static  public void centerWindow(JFrame frame) {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

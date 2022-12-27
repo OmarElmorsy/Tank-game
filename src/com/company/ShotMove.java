@@ -16,7 +16,7 @@ public class ShotMove {
         this.xShot = (float) (x);
         this.yShot = (float) (y);
         indexTexture = direction ;
-
+        this.isEnemyShot = isEnemyShot;
         if(direction == 2 || direction == 3) {
             float temp = widthShot;
             widthShot = heightShot;
