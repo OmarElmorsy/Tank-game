@@ -3,10 +3,13 @@ package com.company;
 import com.TextureReader;
 import sun.audio.AudioPlayer;
 import sun.audio.AudioStream;
+
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
 import javax.media.opengl.glu.GLU;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.FileInputStream;
@@ -15,14 +18,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class BodyGLEventListener extends Main implements GLEventListener , KeyListener {
-
     boolean paused = false ;
     boolean isKingDie= false;
     static AudioStream Shot_start = null;
     static AudioStream bodySound = null;
+    boolean sound= true;
+    JPanel p3 = new JPanel();
     @Override
     public void init(GLAutoDrawable drawable) {
-
         InputStream bodysound = null;
        try {
            bodysound =new FileInputStream("C:\\my_project\\artical_WibSite\\Tank-game\\Music\\soundbody.wav");
@@ -31,11 +34,11 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
        }catch (Exception e){
            System.out.println(e);
        }
-
        for (int i = 0 ; i<numberOfPlayers ;i++){
             players.add(new Players(10+(i*70),10,1));
         }
-        tanks.add(new Tanks(12.5F, 80 , 4 ));
+        tanks.add(new Tanks(16, 80 , 4 ));
+        tanks.add(new Tanks(75.5F, 80 , 4 ));
         GL gl = drawable.getGL();
         gl.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         gl.glViewport(0, 0, 100,100);
@@ -61,76 +64,102 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
     public void display(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
         gl.glClear (GL.GL_COLOR_BUFFER_BIT);
-        createTanks(gl, true);
+
        if (paused){
            drawTexture(gl,13,0, 0,100, 100);
        }else if (!isKingDie) {
            drawMap(gl);
+           createTanks(gl, true);
            createTanks(gl, false );
-           for (int i = 0; i < shotData.size() ; i ++){
+           for (int i = 0; i < shotData.size() ; i++){
               // System.out.println(shotData.get(i).direction);
-               drawTexture(gl,shotData.get(i).indexTexture, shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).widthShot, shotData.get(i).heightShot);
-               playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot );
 
-               if (shotData.get(i).direction ==1){
-                   playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot );
-                   shotData.get(i).yShot +=.4;
-                   if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Top")){
-                     //  System.out.println(19-removeWallY + "   " + removeWallX);
-                       shotData.remove(i);
-                       wallMap[19-removeWallY][removeWallX] = 0;
-                   }
+               if (shotData.get(i).xShot>=95||shotData.get(i).yShot>=95||shotData.get(i).xShot<=5||shotData.get(i).yShot<=5){
+                shotData.remove(i);
+            }else {
+                drawTexture(gl,shotData.get(i).indexTexture, shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).widthShot, shotData.get(i).heightShot);
+                playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot );
 
-                   if ((removeWallX==9&&removeWallY==18)) {
-                       System.out.println(removeWallX + "    " + removeWallY);
-                       isKingDie=true;
+                if (shotData.get(i).direction ==1){
+                    playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot );
+                    shotData.get(i).yShot +=.4;
+                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Top")){
+                        //  System.out.println(19-removeWallY + "   " + removeWallX);
+                        if(!shotData.get(i).isEnemyShot){
+                            score += 10;
+                            System.out.println(score);
+                        }
+                        shotData.remove(i);
+                        wallMap[19-removeWallY][removeWallX] = 0;
 
-                   }
-               }else if (shotData.get(i).direction ==3){
-                   playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot);
-                   shotData.get(i).xShot -=.4;
+                    }
 
-                   if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Left")){
-                       shotData.remove(i);
-                       wallMap[removeWallY][removeWallX] = 0;
-                   }
-                   if ((removeWallX==9&&removeWallY==18)) {
-                       System.out.println(removeWallX + "    " + removeWallY);
-                       isKingDie=true;
+                    if ((removeWallX==9&&removeWallY==18)) {
+                       // System.out.println(removeWallX + "    " + removeWallY);
+                        isKingDie=true;
 
-                   }
+                    }
+                }else if (shotData.get(i).direction ==3){
+                    playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot);
+                    shotData.get(i).xShot -=.4;
 
-               }else if (shotData.get(i).direction ==4){
-                   playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot);
-                   shotData.get(i).yShot -=.4;
-                   if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Down")){
-                       shotData.remove(i);
-                       wallMap[removeWallY][removeWallX] = 0;
-                   }
-                   if ((removeWallX==9&&removeWallY==18)) {
-                       System.out.println(removeWallX + "    " + removeWallY);
-                       isKingDie=true;
+                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Left")){
+                        if(!shotData.get(i).isEnemyShot){
+                            score += 10;
+                            System.out.println(score);
+                        }
+                        shotData.remove(i);
+                        wallMap[removeWallY][removeWallX] = 0;
 
-                   }
-               }else if (shotData.get(i).direction == 2){
-                   playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot);
-                   shotData.get(i).xShot +=.4;
-                   if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Right")){
-                       shotData.remove(i);
-                       wallMap[removeWallY][removeWallX] = 0;
-                   }
-                   if (removeWallX==9&&removeWallY==18) {
-                       System.out.println(removeWallX + "    " + removeWallY);
-                       isKingDie=true;
+                    }
+                    if ((removeWallX==9&&removeWallY==18)) {
+                        //System.out.println(removeWallX + "    " + removeWallY);
+                        isKingDie=true;
 
-                   }
-               }
+                    }
+
+                }else if (shotData.get(i).direction ==4){
+                    playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot);
+                    shotData.get(i).yShot -=.4;
+                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Down")){
+                        if(!shotData.get(i).isEnemyShot){
+                            score += 10;
+                            System.out.println(score);
+                        }
+                        shotData.remove(i);
+                        wallMap[removeWallY][removeWallX] = 0;
+
+                    }
+                    if ((removeWallX==9&&removeWallY==18)) {
+
+                        isKingDie=true;
+
+                    }
+                }else if (shotData.get(i).direction == 2){
+                    playerDie(shotData.get(i).xShot, shotData.get(i).yShot, shotData.get(i).direction,shotData.get(i).isEnemyShot);
+                    shotData.get(i).xShot +=.4;
+                    if(!canMove(false, shotData.get(i).xShot, shotData.get(i).yShot, "Right")){
+                        if(!shotData.get(i).isEnemyShot){
+                            score += 10;
+                            System.out.println(score);
+                        }
+                        shotData.remove(i);
+                        wallMap[removeWallY][removeWallX] = 0;
+
+                    }
+                    if (removeWallX==9&&removeWallY==18) {
+                        isKingDie=true;
+
+                    }
+                }
+            }
+
 
            }
        } else {
+           Body_of_Game.add(p3, BorderLayout.NORTH);
            drawTexture(gl,15,0, 0,100, 100);
            AudioPlayer.player.stop(bodySound);
-
        }
 
     }
@@ -139,7 +168,7 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
         if(isEnemy){
           for (int i = 0; i < tanks.size(); i++) {
               drawTexture(gl, tanks.get(i).indexTexture , tanks.get(i).x, tanks.get(i).y,tankWidth, tankHeight);
-              if( tanks.get(i).x >=89 || tanks.get(i).x <6 || tanks.get(i).y >=89 || tanks.get(i).y <6||
+              if( tanks.get(i).x >=90 || tanks.get(i).x <6 || tanks.get(i).y >=90 || tanks.get(i).y <6||
                       !canMove(true, tanks.get(i).x, tanks.get(i).y, "Top")
                       || !canMove(true, tanks.get(i).x, tanks.get(i).y, "Left")
                       || !canMove(true, tanks.get(i).x, tanks.get(i).y, "Down")
@@ -166,15 +195,14 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
 
     }
     public void playerDie (float x, float y, int direction ,boolean isEnemyShot){
-        System.out.println(x + "  " + y + direction + "   "+ players.get(0).x + "   " + players.get(0).y);
         if (isEnemyShot){
-           if (direction==1 && (x>=players.get(0).x && x<=players.get(0).x+5) && y == players.get(0).y ){
+             if (direction==1 && (x>=players.get(0).x && x<=players.get(0).x+5) && y == players.get(0).y ){
                isKingDie = true;
            }else if (direction==2 && (y>=players.get(0).y && y<=players.get(0).y+5) && x == players.get(0).x){
                isKingDie = true ;
            }else if (direction==3 && (y>=players.get(0).y && y<=players.get(0).y+5) && x == players.get(0).x+5){
                isKingDie = true ;
-           }else if (direction==1 && (x>=players.get(0).x && x<=players.get(0).x+5) && y == players.get(0).y+5){
+           }else if (direction==4 && (x>=players.get(0).x && x<=players.get(0).x+5) && y == players.get(0).y+5){
                isKingDie =true;
            }
        }
@@ -217,7 +245,7 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
     @Override
     public void keyPressed(KeyEvent e) {
         double scale = 0.1;
-        double max_X = 90, max_Y = 90, min_X = 6, min_Y = 6;
+        double max_X = 92, max_Y = 92, min_X = 4, min_Y = 4;
         if (e.getKeyCode()==KeyEvent.VK_UP){
             if (players.get(0).y+scale*2<max_Y && canMove(true, players.get(0).x, players.get(0).y,"Top")) {
                 players.get(0).y += scale * 4;
@@ -281,21 +309,34 @@ public class BodyGLEventListener extends Main implements GLEventListener , KeyLi
                 soundBegin(false,false);
             }
         }
+
+
         if(e.getKeyCode()== KeyEvent.VK_P){
             paused = !paused;
+            if(paused){
+                AudioPlayer.player.stop(bodySound);
+                sound = false;
+            }else {
+                AudioPlayer.player.start(bodySound);
+                sound = true;
+
+            }
         }
-    
+        if (e.getKeyCode()==KeyEvent.VK_M){
+            sound = !sound;
+            if(sound && !paused){
+                AudioPlayer.player.start(bodySound);
+            }else {
+                AudioPlayer.player.stop(bodySound);
+
+            }
+        }
     }
 
     private boolean canMove(boolean isTank,float x, float y,String direction) {
         int row = 0, colum = 0;
         float widthShape = isTank? tankWidth : (float) (0.5) ;
         float heightShape = isTank? tankHeight : 2 ;
-         if (!isTank){
-           if (x > 95 || x < 2 || y > 95 || y < 2){
-               return false;
-           }
-       }
         if (direction=="Top"){
             row = (int)(Math.floor((y+ heightShape +0.4)/5));
             colum = (int)(Math.floor((x)/5));

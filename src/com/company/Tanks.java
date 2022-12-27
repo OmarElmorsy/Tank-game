@@ -19,14 +19,14 @@ public class Tanks {
     }
 
     public void generateRandomMove() {
-        if(timeShot++ == 70) {
+        if(timeShot++ == 20) {
             enemyShot = true;
             timeShot = 0;
         }else{
             enemyShot = false;
         }
 
-        if (timeChange++ == 100) {
+        if (timeChange++ == 150) {
             randomDirection = (int) (Math.random() * 4);
             timeChange = 0;
         }
